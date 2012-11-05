@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="swingit" basedir="." default="all">
+
+	<!-- ############################################################################## -->
+	<!-- TREE CONFIGURATION                                                             -->
+	<!-- ############################################################################## -->
+	
+	<property name="dir.src"		value="src"/>       <!-- Path to the directory that contains the Java sources. -->
+	<property name="dir.class"		value="bin"/>       <!-- Path to the directory that contains the class files. -->
+	<property name="dir.jar"		value="jar"/>       <!-- Path to the directory that contains the JARs. -->
+
+	<!-- ############################################################################## -->
+	<!-- JAR NAMES                                                                      -->
+	<!-- ############################################################################## -->
+	
+	<property name="name.jar.main"	value="swingit.jar"/>
+
+	<!-- ############################################################################## -->
+	<!-- CLASSPATH                                                                      -->
+	<!-- ############################################################################## -->
+
+	<path id="classpath">
+		<pathelement location="${dir.jar}/${name.jar.main}"/>
+	</path>
+
+	<target name="show-classpath">
+		<property name="myclasspath" refid="classpath"/>
+		<echo message="Classpath = ${myclasspath}"/>
+	</target>
+
+	<!-- ############################################################################## -->
+	<!-- MAIN JAR                                                                       -->
+	<!-- ############################################################################## -->
+
+	<!-- Pattern that represents the files to compile. -->
+	<patternset id="src.swingit">
+		<include name="**/*.java"/>
+	</patternset>
+
+	<!-- List of files to archive. -->
+	<fileset id="class.swingit" dir="${dir.class}" casesensitive="yes">
+		<include name="**/*.class"/>
+	</fileset>
+
+	<target name="show-class-swingit" depends="swingit">
+		<echo message="${toString:class.swingit}" />
+	</target>
+
+	<!-- ############################################################################## -->
+	<!-- Generic rules                                                                  -->
+	<!-- ############################################################################## -->
+
+	<!-- Build all. -->
+	<target name="all" depends="swingit">
+	</target>
+	
+	<!-- Tasks that must be done before all compilation. -->
+	<target name="build">
+		<mkdir dir="${dir.class}"/>
+	</target>
+
+	<!-- Build documentation. -->
+	<target name="doc">
+		<apply executable="doxygen" addsourcefile="true">
+			<fileset file="Doxyfile" />
+		</apply>
+	</target>
+
+	<!-- Delete all compiled files. -->
+	<target name="clean">
+		<delete dir="${dir.class}"/>
+		<delete file="${dir.jar}/${name.jar.main}"/>
+		<delete dir="doc/doxygen"/>
+	</target>
+	
+	<!-- Build distribution. -->
+	<target name="dist" depends="all">
+		<delete dir="${dir.class}"/>
+		<delete dir="doc/doxygen"/>
+	</target>
+
+	<!-- ############################################################################## -->
+	<!-- Main JAR                                                                       -->
+	<!-- ############################################################################## -->
+
+	<target name="swingit" depends="build">
+		<!-- Note that the "javac" task does not support <fileset>. -->
+		<javac includeantruntime="false" classpathref="classpath" srcdir="${dir.src}" destdir="${dir.class}" encoding="utf8">
+			<patternset refid="src.swingit"/>
+			<compilerarg value="-Xlint:unchecked"/>
+    	</javac>
+		<!-- Note that <fileset> contains the top directory. Do *NOT* set the attribute "srcdir". -->
+		<jar destfile="${dir.jar}/${name.jar.main}">
+			<fileset refid="class.swingit" />
+		</jar>
+	</target>
+
+</project>
